@@ -10,5 +10,7 @@ export CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
 linkPeer() {
     sudo ln -s /home/setup/config/peer/peer /usr/bin/peer
 }
-
+attachLog(){
+    tail -f /data/hyperledger/log/peer.log
+}
 $1
