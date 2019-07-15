@@ -1,3 +1,6 @@
+if (!process.env.channelsJSONPath) {
+	throw Error('process.env.channelsJSONPath not found');
+}
 const globalConfig = require(process.env.channelsJSONPath);
 
 const path = require('path');
@@ -7,7 +10,7 @@ const OrdererUtil = require('khala-fabric-sdk-node/orderer');
 const PeerUtil = require('khala-fabric-sdk-node/peer');
 const {nodeUtil} = require('khala-fabric-sdk-node/helper');
 const {homeResolve} = nodeUtil.helper();
-const {findKeyFiles,findCertFiles} = require('khala-fabric-sdk-node/path');
+const {findKeyFiles, findCertFiles} = require('khala-fabric-sdk-node/path');
 
 exports.channelName = globalConfig.channelName;
 
