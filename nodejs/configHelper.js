@@ -12,7 +12,7 @@ const {nodeUtil} = require('khala-fabric-sdk-node/helper');
 const {homeResolve} = nodeUtil.helper();
 const {findKeyFiles, findCertFiles} = require('khala-fabric-sdk-node/path');
 
-exports.channelName = globalConfig.channelName;
+exports.globalConfig = globalConfig;
 
 /**
  *
