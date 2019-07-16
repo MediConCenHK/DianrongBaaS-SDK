@@ -68,7 +68,7 @@ const getUserKeyPathFromDRClientOutput = (credentialPath) => {
 
 
 	return {
-		keyPath: findKeyFiles(keyDirPath),
+		keyPath: findKeyFiles(keyDirPath)[0],
 		certPath: findCertFiles(certDirPath)[0]
 	};
 };
