@@ -19,8 +19,15 @@ exports.globalConfig = globalConfig;
  * @returns {Promise<Peer[]>}
  */
 exports.getActivePeers = async () => {
-	const allPeers = globalConfig.peers.map(({tlsCaCert, hostname}) => {
+	const allPeers = globalConfig.peers.map(({tlsCaCert, hostname, url}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
+		if (url) {
+			return new PeerUtil.Peer(url, {
+				pem,
+				'ssl-target-name-override': hostname
+			});
+		}
+
 		return PeerUtil.new({peerPort: 7051, host: hostname, peerHostName: hostname, pem});
 	});
 	const result = [];
@@ -57,15 +64,12 @@ exports.getActiveOrderers = async () => {
 		}
 	}
 	return result;
-
 };
 
-
-const getUserKeyPathFromDRClientOutput = (credentialPath) => {
+const getUserKeyPathFromDRClientOutput = credentialPath => {
 	const absoluteCredentialPath = homeResolve(credentialPath);
 	const keyDirPath = path.resolve(absoluteCredentialPath, 'keystore');
 	const certDirPath = path.resolve(absoluteCredentialPath, 'signcerts');
-
 
 	return {
 		keyPath: findKeyFiles(keyDirPath)[0],
