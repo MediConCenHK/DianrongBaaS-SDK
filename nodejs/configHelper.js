@@ -18,7 +18,7 @@ exports.globalConfig = globalConfig;
  *
  * @returns {Promise<Peer[]>}
  */
-exports.getActivePeers = async () => {
+exports.getActivePeers = async (peerFilter = () => true) => {
 	const allPeers = globalConfig.peers.map(({tlsCaCert, hostname, url}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 		if (url) {
@@ -31,7 +31,7 @@ exports.getActivePeers = async () => {
 		return PeerUtil.new({peerPort: 7051, host: hostname, peerHostName: hostname, pem});
 	});
 	const result = [];
-	for (const peer of allPeers) {
+	for (const peer of allPeers.filter(peerFilter)) {
 		if (await PeerUtil.ping(peer)) {
 			result.push(peer);
 		}
@@ -48,7 +48,7 @@ exports.getUser = async (userID = 'appUser') => {
 	return await UserUtil.build(username, {key, certificate}, mspId);
 };
 
-exports.getActiveOrderers = async () => {
+exports.getActiveOrderers = async (ordererFilter = () => true) => {
 	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 		if (url) {
@@ -66,7 +66,7 @@ exports.getActiveOrderers = async () => {
 		}
 	});
 	const result = [];
-	for (const orderer of orderers) {
+	for (const orderer of orderers.filter(ordererFilter)) {
 		if (await OrdererUtil.ping(orderer)) {
 			result.push(orderer);
 		}
