@@ -49,13 +49,21 @@ exports.getUser = async (userID = 'appUser') => {
 };
 
 exports.getActiveOrderers = async () => {
-	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname}) => {
-		return OrdererUtil.new({
-			ordererPort: 7050,
-			ordererHostName: hostname,
-			host: hostname,
-			cert: homeResolve(tlsCaCert)
-		});
+	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url}) => {
+		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
+		if (url) {
+			return OrdererUtil.Orderer(url, {
+				pem,
+				'ssl-target-name-override': hostname
+			});
+		} else {
+			return OrdererUtil.new({
+				ordererPort: 7050,
+				ordererHostName: hostname,
+				host: hostname,
+				pem
+			});
+		}
 	});
 	const result = [];
 	for (const orderer of orderers) {

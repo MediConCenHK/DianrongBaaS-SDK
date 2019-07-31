@@ -1,7 +1,7 @@
 {
   "name": "dianrong-baas-sdk",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "dependencies": {
-    "khala-fabric-sdk-node": "^1.4.1-0.4.1"
+    "khala-fabric-sdk-node": "^1.4.1-0.4.2"
   }
 }
