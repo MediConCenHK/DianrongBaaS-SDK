@@ -52,7 +52,7 @@ exports.getActiveOrderers = async () => {
 	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 		if (url) {
-			return OrdererUtil.Orderer(url, {
+			return new OrdererUtil.Orderer(url, {
 				pem,
 				'ssl-target-name-override': hostname
 			});
