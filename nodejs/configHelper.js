@@ -14,22 +14,33 @@ const {findKeyFiles, findCertFiles} = require('khala-fabric-sdk-node/path');
 
 exports.globalConfig = globalConfig;
 
+const parsePeerConfig = ({tlsCaCert, hostname, url}) => {
+	const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
+	if (url) {
+		return new PeerUtil.Peer(url, {
+			pem,
+			'ssl-target-name-override': hostname
+		});
+	}
+
+	return PeerUtil.new({peerPort: 7051, host: hostname, peerHostName: hostname, pem});
+};
+exports.getActiveDiscoveryPeers = async () => {
+	const allPeers = globalConfig.discoveryPeers.map(parsePeerConfig);
+	const result = [];
+	for (const peer of allPeers) {
+		if (await PeerUtil.ping(peer)) {
+			result.push(peer);
+		}
+	}
+	return result;
+};
 /**
  *
  * @returns {Promise<Peer[]>}
  */
 exports.getActivePeers = async (peerFilter = () => true) => {
-	const allPeers = globalConfig.peers.map(({tlsCaCert, hostname, url}) => {
-		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
-		if (url) {
-			return new PeerUtil.Peer(url, {
-				pem,
-				'ssl-target-name-override': hostname
-			});
-		}
-
-		return PeerUtil.new({peerPort: 7051, host: hostname, peerHostName: hostname, pem});
-	});
+	const allPeers = globalConfig.peers.map(parsePeerConfig);
 	const result = [];
 	for (const peer of allPeers.filter(peerFilter)) {
 		if (await PeerUtil.ping(peer)) {

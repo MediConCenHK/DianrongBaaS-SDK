@@ -72,7 +72,6 @@ exports.invokeDefault = async (channel,
 
 	const nextRequest = await transactionProposalDefault(
 		channel,
-		targets,
 		discoveryRestrictions,
 		{
 			chaincodeId,
