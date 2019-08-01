@@ -19,9 +19,9 @@ const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
  * @returns {Promise<TransactionRequest>}
  */
 const transactionProposalDefault = async (channel,
-                                          {required, ignore, preferred, requiredOrgs, ignoreOrgs, preferredOrgs},
+                                          {required, ignore, preferred, requiredOrgs, ignoreOrgs, preferredOrgs} = {},
                                           {chaincodeId, fcn, args, transientMap},
-                                          proposalTimeout) => {
+                                          proposalTimeout = 30000) => {
 	const txId = channel._clientContext.newTransactionID();
 	const request = {
 		txId,
@@ -61,12 +61,10 @@ const invokeCommitDefault = async (channel, nextRequest, timeout = 30000) => {
  * @param eventTimeout
  * @returns {Promise<{txEventResponses: any[], proposalResponses: TransactionRequest.proposalResponses}>}
  */
-exports.invokeDefault = async (channel,
-                               discoveryRestrictions,
-                               mspids,
+exports.invokeDefault = async (channel, discoveryRestrictions, mspids,
                                {chaincodeId, fcn, args, transientMap},
-                               proposalTimeout = 30000,
-                               commitTimeout = 30000,
+                               proposalTimeout,
+                               commitTimeout,
                                eventTimeout = 30000) => {
 	logger.info('chaincode:invokeEnhanced', `Invoke chaincode [${chaincodeId}::${fcn}]`);
 
