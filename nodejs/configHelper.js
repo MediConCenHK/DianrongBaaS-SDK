@@ -84,3 +84,21 @@ const getUserKeyPathFromDRClientOutput = credentialPath => {
 		certPath: findCertFiles(certDirPath)[0]
 	};
 };
+/**
+ * Fabric (v1.4) has a bug:
+ * when orderers belongs to different organizations, the service discovery mismatches the orderer to other org's MSP,
+ * which leads to the fabric-client uses the wrong tls CA cert to verify the orderer's tls server cert during SSL
+ * handshake.
+ * At client side, it prints log:
+ *    "E0201 21:23:54.835298000 4531140032 ssl_transport_security.cc:1227]
+ *     Handshake failed with fatal error SSL_ERROR_SSL:
+ *     error:14090086:SSL routines:ssl3_get_server_certificate:certificate verify failed."
+ * The solution is: after channel initialization based on the service discovery, correct the channel's orderers with
+ * the static configuration. However, the client also can retry other one, if one orderer is fault.
+ *
+ * @param {Channel} channel
+ * @param {Orderer[]} orderers
+ */
+exports.fixChannelOrderers = (channel, orderers) => {
+	channel._orderers = orderers;
+};
