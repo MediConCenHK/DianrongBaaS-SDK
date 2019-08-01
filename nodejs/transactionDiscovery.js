@@ -5,7 +5,6 @@ const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
  * This method is enhanced to use the discovered peers to send the endorsement proposal
  *
  * @param channel
- * @param targets: Optional. use the peers included in the "targets" to endorse the proposal. If there is no "targets" parameter, the endorsement request will be handled by the endorsement handler.
  * @param required: Optional. An array of strings that represent the names of peers that are required for the endorsement. These will be the only peers which the proposal will be sent. This list only applies to endorsements using the discovery service.
  * @param ignore: Optional. An array of strings that represent the names of peers that should be ignored by the endorsement. This list only applies to endorsements using the discovery service.
  * @param preferred: Optional. An array of strings that represent the names of peers that should be given priority by the endorsement. Priority means that these peers will be chosen first for endorsements when an endorsement plan has more peers in a group then needed to satisfy the endorsement policy. This list only applies to endorsements using the discovery service.
@@ -20,7 +19,6 @@ const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
  * @returns {Promise<TransactionRequest>}
  */
 const transactionProposalDefault = async (channel,
-                                          targets,
                                           {required, ignore, preferred, requiredOrgs, ignoreOrgs, preferredOrgs},
                                           {chaincodeId, fcn, args, transientMap},
                                           proposalTimeout) => {
@@ -52,8 +50,6 @@ const invokeCommitDefault = async (channel, nextRequest, timeout = 30000) => {
  * 3. wait until the transaction event received
  *
  * @param channel
- * @param targets: Optional. use the peers included in the "targets" to endorse the proposal. If there is no "targets" parameter, the endorsement request will be handled by the endorsement handler.
- * @param required: Optional. An array of strings that represent the names of peers that are required for the endorsement. These will be the only peers which the proposal will be sent. This list only applies to endorsements using the discovery service.
  * @param discoveryRestrictions
  * @param {string[]} [mspids] optional target mspid array for eventHub
  * @param chaincodeId
@@ -66,7 +62,6 @@ const invokeCommitDefault = async (channel, nextRequest, timeout = 30000) => {
  * @returns {Promise<{txEventResponses: any[], proposalResponses: TransactionRequest.proposalResponses}>}
  */
 exports.invokeDefault = async (channel,
-                               targets,
                                discoveryRestrictions,
                                mspids,
                                {chaincodeId, fcn, args, transientMap},
