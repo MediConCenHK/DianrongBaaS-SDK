@@ -1,6 +1,6 @@
 const logger = require('khala-fabric-sdk-node/logger').new('transactionDiscovery');
 const {transientMapTransform, transactionProposalResponseErrorHandler} = require('khala-fabric-sdk-node/chaincode');
-const {initialize} = require('khala-fabric-sdk-node/serviceDiscovery');
+const {initialize, endorsementHintsBuilder} = require('khala-fabric-sdk-node/serviceDiscovery');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
 exports.prepareChannel = async (channel, peer = channel.getPeers()[0]) => {
 	return await initialize(channel, peer, {asLocalhost: false, TLS: true});
@@ -9,20 +9,7 @@ exports.prepareChannel = async (channel, peer = channel.getPeers()[0]) => {
  * This method is enhanced to use the discovered peers to send the endorsement proposal
  *
  * @param channel
- * @param {string[]} [required] An array of strings that represent the names of peers that are required for the endorsement.
- *    These will be the only peers which the proposal will be sent. This list only applies to endorsements using the discovery service.
- * @param {string[]} [ignore] An array of strings that represent the names of peers that should be ignored by the endorsement.
- *  This list only applies to endorsements using the discovery service.
- * @param {string[]} [preferred] An array of strings that represent the names of peers that should be given priority by the endorsement.
- *  Priority means that these peers will be chosen first for endorsements when an endorsement plan has more peers in a group
- *    than needed to satisfy the endorsement policy.
- * @param {string[]} [requiredOrgs] An array of strings that represent the names of an organization's MSP id that are required for the endorsement.
- *  Only peers in these organizations will be sent the proposal. This list only applies to endorsements using the discovery service.
- * @param {string[]} [ignoreOrgs] An array of strings that represent the names of an organization's MSP id that should be ignored by the endorsement.
- *  This list only applies to endorsements using the discovery service.
- * @param {string[]} [preferredOrgs] An array of strings that represent the names of an organization's MSP id that given priority by the endorsement.
- *  Peers within an organization may have their ledger height considered using the optional property [preferredHeightGap]
- *  before being added to the priority list.
+ * @param endorsement_hints
  * @param chaincodeId
  * @param fcn
  * @param args
@@ -32,7 +19,7 @@ exports.prepareChannel = async (channel, peer = channel.getPeers()[0]) => {
  */
 const transactionProposalDefault = async (
 	channel,
-	{required, ignore, preferred, requiredOrgs, ignoreOrgs, preferredOrgs} = {},
+	endorsement_hints,
 	{chaincodeId, fcn, args, transientMap},
 	proposalTimeout = 30000
 ) => {
@@ -43,12 +30,7 @@ const transactionProposalDefault = async (
 		fcn,
 		args,
 		transientMap: transientMapTransform(transientMap),
-		required,
-		ignore,
-		preferred,
-		requiredOrgs,
-		ignoreOrgs,
-		preferredOrgs
+		endorsement_hints: endorsementHintsBuilder(endorsement_hints)
 	};
 
 	const [proposalResponses, proposal] = await channel.sendTransactionProposal(request, proposalTimeout);
