@@ -1,17 +1,17 @@
 const logger = require('khala-fabric-sdk-node/logger').new('transactionDiscovery');
-const {transientMapTransform} = require('khala-fabric-sdk-node/chaincode');
+const {transientMapTransform, transactionProposalResponseErrorHandler} = require('khala-fabric-sdk-node/chaincode');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
 /**
  * This method is enhanced to use the discovered peers to send the endorsement proposal
  *
  * @param channel
  * @param {string[]} [required] An array of strings that represent the names of peers that are required for the endorsement.
- * 	These will be the only peers which the proposal will be sent. This list only applies to endorsements using the discovery service.
+ *    These will be the only peers which the proposal will be sent. This list only applies to endorsements using the discovery service.
  * @param {string[]} [ignore] An array of strings that represent the names of peers that should be ignored by the endorsement.
  *  This list only applies to endorsements using the discovery service.
  * @param {string[]} [preferred] An array of strings that represent the names of peers that should be given priority by the endorsement.
  *  Priority means that these peers will be chosen first for endorsements when an endorsement plan has more peers in a group
- * 	than needed to satisfy the endorsement policy.
+ *    than needed to satisfy the endorsement policy.
  * @param {string[]} [requiredOrgs] An array of strings that represent the names of an organization's MSP id that are required for the endorsement.
  *  Only peers in these organizations will be sent the proposal. This list only applies to endorsements using the discovery service.
  * @param {string[]} [ignoreOrgs] An array of strings that represent the names of an organization's MSP id that should be ignored by the endorsement.
@@ -48,7 +48,7 @@ const transactionProposalDefault = async (
 	};
 
 	const [proposalResponses, proposal] = await channel.sendTransactionProposal(request, proposalTimeout);
-
+	transactionProposalResponseErrorHandler(proposalResponses, proposal);
 	return {
 		proposalResponses,
 		proposal,
