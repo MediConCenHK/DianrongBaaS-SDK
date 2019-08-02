@@ -1,6 +1,10 @@
 const logger = require('khala-fabric-sdk-node/logger').new('transactionDiscovery');
 const {transientMapTransform, transactionProposalResponseErrorHandler} = require('khala-fabric-sdk-node/chaincode');
+const {initialize} = require('khala-fabric-sdk-node/serviceDiscovery');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
+exports.prepareChannel = async (channel, peer = channel.getPeers()[0]) => {
+	return await initialize(channel, peer, {asLocalhost: false, TLS: true});
+};
 /**
  * This method is enhanced to use the discovered peers to send the endorsement proposal
  *
