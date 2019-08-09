@@ -14,7 +14,7 @@ const {findKeyFiles, findCertFiles} = require('khala-fabric-sdk-node/path');
 
 exports.globalConfig = globalConfig;
 
-const parsePeerConfig = ({tlsCaCert, hostname, url}) => {
+const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 	if (url) {
 		return new PeerUtil.Peer(url, {
@@ -23,7 +23,7 @@ const parsePeerConfig = ({tlsCaCert, hostname, url}) => {
 		});
 	}
 
-	return PeerUtil.new({peerPort: 7051, host: hostname, pem});
+	return PeerUtil.new({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
 };
 exports.getActiveDiscoveryPeers = async () => {
 	const allPeers = globalConfig.discoveryPeers.map(peerConfig => {
@@ -64,7 +64,7 @@ exports.getUser = async (userID = 'appUser') => {
 };
 
 exports.getActiveOrderers = async (ordererFilter = () => true) => {
-	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url}) => {
+	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 		if (url) {
 			return new OrdererUtil.Orderer(url, {
@@ -73,9 +73,9 @@ exports.getActiveOrderers = async (ordererFilter = () => true) => {
 			});
 		} else {
 			return OrdererUtil.new({
-				ordererPort: 7050,
-				host: hostname,
-				pem
+				ordererPort: 7050, host: hostname,
+				pem,
+				clientKey, clientCert
 			});
 		}
 	});
