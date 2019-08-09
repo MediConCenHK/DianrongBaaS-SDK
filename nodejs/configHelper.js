@@ -23,7 +23,7 @@ const parsePeerConfig = ({tlsCaCert, hostname, url}) => {
 		});
 	}
 
-	return PeerUtil.new({peerPort: 7051, host: hostname, peerHostName: hostname, pem});
+	return PeerUtil.new({peerPort: 7051, host: hostname, pem});
 };
 exports.getActiveDiscoveryPeers = async () => {
 	const allPeers = globalConfig.discoveryPeers.map(peerConfig => {
@@ -74,7 +74,6 @@ exports.getActiveOrderers = async (ordererFilter = () => true) => {
 		} else {
 			return OrdererUtil.new({
 				ordererPort: 7050,
-				ordererHostName: hostname,
 				host: hostname,
 				pem
 			});
