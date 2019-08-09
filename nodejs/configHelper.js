@@ -22,7 +22,8 @@ const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 			'ssl-target-name-override': hostname
 		});
 	}
-
+	clientKey = fs.readFileSync(homeResolve(clientKey)).toString();
+	clientCert = fs.readFileSync(homeResolve(clientCert)).toString();
 	return PeerUtil.new({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
 };
 exports.getActiveDiscoveryPeers = async () => {
@@ -72,6 +73,8 @@ exports.getActiveOrderers = async (ordererFilter = () => true) => {
 				'ssl-target-name-override': hostname
 			});
 		} else {
+			clientKey = fs.readFileSync(homeResolve(clientKey)).toString();
+			clientCert = fs.readFileSync(homeResolve(clientCert)).toString();
 			return OrdererUtil.new({
 				ordererPort: 7050, host: hostname,
 				pem,
