@@ -27,11 +27,7 @@ const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	return PeerUtil.new({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
 };
 exports.getActiveDiscoveryPeers = async () => {
-	const allPeers = globalConfig.discoveryPeers.map(peerConfig => {
-		const peer = parsePeerConfig(peerConfig);
-		peer.mspId = peerConfig.mspId;
-		return peer;
-	});
+	const allPeers = globalConfig.discoveryPeers.map(parsePeerConfig);
 	const result = [];
 	for (const peer of allPeers) {
 		if (await PeerUtil.ping(peer)) {

@@ -1,28 +1,46 @@
 const logger = require('khala-fabric-sdk-node/logger').new('transactionDiscovery');
 const {transientMapTransform, transactionProposalResponseErrorHandler} = require('khala-fabric-sdk-node/chaincode');
+const ClientUtil = require('khala-fabric-sdk-node/client');
+const ChannelUtil = require('khala-fabric-sdk-node/channel');
 const {initialize, endorsementHintsBuilder} = require('khala-fabric-sdk-node/serviceDiscovery');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
-exports.prepareChannel = async (channel, peer = channel.getPeers()[0]) => {
+const Config = require('./configHelper');
+const prepareChannel = async (channelName, userID) => {
+	const activePeers = await Config.getActiveDiscoveryPeers();
+	const peer = activePeers[0];
+	const user = await Config.getUser(userID);
+	const client = ClientUtil.new();
+	ClientUtil.setUser(client, user);
+	const channel = ChannelUtil.new(client, channelName);
+	//TODO is it required?
+	// for (const peer of activePeers) {
+	// 	channel.addPeer(peer, peer.mspId);
+	// }
+
 	return await initialize(channel, peer, {asLocalhost: false, TLS: true});
 };
+exports.prepareChannel = prepareChannel;
 /**
  * This method is enhanced to use the discovered peers to send the endorsement proposal
  *
  * @param channel
+ * @param channelName
+ * @param userID
  * @param endorsement_hints
  * @param chaincodeId
  * @param fcn
  * @param args
  * @param transientMap
  * @param proposalTimeout
- * @returns {Promise<TransactionRequest>}
+ * @returns {Promise<[TransactionRequest,Channel]>}
  */
 const transactionProposalDefault = async (
-	channel,
+	channelName, userID,
 	endorsement_hints,
 	{chaincodeId, fcn, args, transientMap},
 	proposalTimeout = 30000
 ) => {
+	const channel = await prepareChannel(channelName, userID);
 	const txId = channel._clientContext.newTransactionID();
 	const request = {
 		txId,
@@ -35,13 +53,13 @@ const transactionProposalDefault = async (
 
 	const [proposalResponses, proposal] = await channel.sendTransactionProposal(request, proposalTimeout);
 	transactionProposalResponseErrorHandler(proposalResponses, proposal);
-	return {
+	return [{
 		proposalResponses,
 		proposal,
 		txId
-	};
+	}, channel];
 };
-exports.queryDefault = transactionProposalDefault;
+exports.queryDefault = async (...args) => transactionProposalDefault(...args)[0];
 const invokeCommitDefault = async (channel, nextRequest, timeout = 30000) => {
 	// The invokeCommit method is enhanced by service discovery, so no need to pass in orderer
 	return channel.sendTransaction(nextRequest, timeout);
@@ -49,9 +67,10 @@ const invokeCommitDefault = async (channel, nextRequest, timeout = 30000) => {
 /**
  * Invoke chaincode in an complete transaction flow:
  *
- * @param channel
- * @param discoveryRestrictions
- * @param {string[]} [mspids] optional target mspid array for eventHub
+ * @param channelName
+ * @param userID
+ * @param endorsement_hints
+ * @param {ChannelEventHub[]} [eventHubs] optional
  * @param chaincodeId
  * @param fcn
  * @param args
@@ -59,45 +78,43 @@ const invokeCommitDefault = async (channel, nextRequest, timeout = 30000) => {
  * @param proposalTimeout
  * @param commitTimeout
  * @param eventTimeout
- * @returns {Promise<{txEventResponses: any[], proposalResponses: TransactionRequest.proposalResponses}>}
+ * @returns {Promise<{txEventResponses: *, proposalResponses: *, status: string}>}
  */
-exports.invokeDefault = async (
-	channel,
-	discoveryRestrictions,
-	mspids,
+const invokeDefault = async (
+	channelName, userID,
+	endorsement_hints,
+	eventHubs = [],
 	{chaincodeId, fcn, args, transientMap},
 	proposalTimeout,
 	commitTimeout,
 	eventTimeout = 30000
 ) => {
-	logger.info('chaincode:invokeEnhanced', `Invoke chaincode [${chaincodeId}::${fcn}]`);
-
-	const nextRequest = await transactionProposalDefault(
-		channel,
-		discoveryRestrictions,
-		{
-			chaincodeId,
-			fcn,
-			args,
-			transientMap
-		},
+	logger.info('chaincode:invokeDefault', `Invoke chaincode [${chaincodeId}::${fcn}]`);
+	const [nextRequest, channel] = await transactionProposalDefault(
+		channel, userID,
+		endorsement_hints,
+		{chaincodeId, fcn, args, transientMap},
 		proposalTimeout
 	);
 
 	const {txId, proposalResponses} = nextRequest;
 	const promises = [];
 
-	mspids = Array.isArray(mspids) && mspids.length > 0 ? mspids : channel.getOrganizations().map(({id}) => id);
-	const eventHubs = mspids.map(mspid => channel.getChannelEventHubsForOrg(mspid)).reduce((c1, c2) => c1.concat(c2));
+	if (eventHubs.length === 0) {
+		const mspids = channel.getOrganizations().map(({id}) => id);
+		eventHubs = mspids.map(mspid => channel.getChannelEventHubsForOrg(mspid)).reduce((c1, c2) => c1.concat(c2));
+	}
 
 	for (const eventHub of eventHubs) {
 		eventHub.connect(true);
 		promises.push(txTimerPromise(eventHub, {txId}, eventTimeout));
 	}
-
+	const orderers = await Config.getActiveOrderers();
+	Config.fixChannelOrderers(channel, orderers);
 	const res = await invokeCommitDefault(channel, nextRequest, commitTimeout);
-	logger.info('SendTransaction response: ', res.status);
 	const txEventResponses = await Promise.all(promises);
 
-	return {txEventResponses, proposalResponses};
+	return {txEventResponses, proposalResponses, status: res.status};
 };
+
+exports.invokeDefault = invokeDefault;
