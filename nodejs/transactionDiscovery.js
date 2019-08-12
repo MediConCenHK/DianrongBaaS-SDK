@@ -17,7 +17,8 @@ const prepareChannel = async (channelName, userID) => {
 	// 	channel.addPeer(peer, peer.mspId);
 	// }
 
-	return await initialize(channel, peer, {asLocalhost: false, TLS: true});
+	await initialize(channel, peer, {asLocalhost: false, TLS: true});
+	return channel;
 };
 exports.prepareChannel = prepareChannel;
 /**
