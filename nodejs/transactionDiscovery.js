@@ -12,10 +12,6 @@ const prepareChannel = async (channelName, userID) => {
 	const client = ClientUtil.new();
 	ClientUtil.setUser(client, user);
 	const channel = ChannelUtil.new(client, channelName);
-	//TODO is it required?
-	// for (const peer of activePeers) {
-	// 	channel.addPeer(peer, peer.mspId);
-	// }
 
 	await initialize(channel, peer, {asLocalhost: false, TLS: true});
 	return channel;
@@ -101,7 +97,7 @@ const invokeDefault = async (
 ) => {
 	logger.info('chaincode:invokeDefault', `Invoke chaincode [${chaincodeId}::${fcn}]`);
 	const [nextRequest, channel] = await transactionProposalDefault(
-		channel, userID,
+		channelName, userID,
 		endorsement_hints,
 		{chaincodeId, fcn, args, transientMap},
 		proposalTimeout
