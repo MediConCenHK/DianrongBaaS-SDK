@@ -59,7 +59,16 @@ const transactionProposalDefault = async (
 		txId
 	}, channel];
 };
-exports.queryDefault = async (...args) => transactionProposalDefault(...args)[0];
+exports.queryDefault = async (channelName, userID,
+                              endorsement_hints,
+                              {chaincodeId, fcn, args, transientMap},
+                              proposalTimeout) => {
+	const result = await transactionProposalDefault(channelName, userID,
+		endorsement_hints,
+		{chaincodeId, fcn, args, transientMap},
+		proposalTimeout);
+	return result[0];
+};
 const invokeCommitDefault = async (channel, nextRequest, timeout = 30000) => {
 	// The invokeCommit method is enhanced by service discovery, so no need to pass in orderer
 	return channel.sendTransaction(nextRequest, timeout);
