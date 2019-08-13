@@ -34,7 +34,7 @@ exports.prepareChannel = prepareChannel;
 const transactionProposalDefault = async (
 	channelName, userID,
 	endorsement_hints,
-	{chaincodeId, fcn, args, transientMap},
+	{chaincodeId, fcn, args = [], transientMap},
 	proposalTimeout = 30000
 ) => {
 	const channel = await prepareChannel(channelName, userID);
