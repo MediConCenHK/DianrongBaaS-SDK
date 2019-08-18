@@ -1,0 +1,29 @@
+{
+  "discoveryPeers": [
+    {
+      "url": "grpcs://peer0.mcc:7051",
+      "hostname": "peer0.mcc",
+      "tlsCaCert": "crypto-config/peerOrganizations/mcc/tlsca/tlsca.mcc-cert.pem"
+    }
+  ],
+  "peers": [],
+  "users": {
+    "appUser": {
+      "username": "Admin@mcc",
+      "mspId": "MCCMSP",
+      "credentialPath": "crypto-config/peerOrganizations/mcc/users/Admin@mcc/msp"
+    }
+  },
+  "orderers": [
+    {
+      "clientKey": "crypto-config/ordererOrganizations/mediconcen/client/clientKey",
+      "clientCert": "crypto-config/ordererOrganizations/mediconcen/client/clientCert",
+      "hostname": "orderer.mediconcen",
+      "tlsCaCert": "crypto-config/ordererOrganizations/mediconcen/tlsca/tlsca.mediconcen-cert.pem"
+    }
+  ],
+  "chaincodeConfig": {
+    "test": {
+    }
+  }
+}
