@@ -38,7 +38,7 @@ start(){
 }
 restart(){
     stop
-    start
+    start &
 }
 $1
 
