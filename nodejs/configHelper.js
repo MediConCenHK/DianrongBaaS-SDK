@@ -26,6 +26,10 @@ const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	clientCert = fs.readFileSync(homeResolve(clientCert)).toString();
 	return PeerUtil.new({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
 };
+/**
+ *
+ * @returns {Promise<Peer[]>}
+ */
 exports.getActiveDiscoveryPeers = async () => {
 	const allPeers = globalConfig.discoveryPeers.map(parsePeerConfig);
 	const result = [];
@@ -38,6 +42,7 @@ exports.getActiveDiscoveryPeers = async () => {
 };
 /**
  *
+ * @param {function} peerFilter
  * @returns {Promise<Peer[]>}
  */
 exports.getActivePeers = async (peerFilter = () => true) => {
@@ -59,7 +64,11 @@ exports.getUser = async (userID = 'appUser') => {
 	const certificate = fs.readFileSync(certPath).toString();
 	return await UserUtil.build(username, {key, certificate}, mspId);
 };
-
+/**
+ *
+ * @param {function} ordererFilter
+ * @return {Promise<Orderer[]>}
+ */
 exports.getActiveOrderers = async (ordererFilter = () => true) => {
 	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
