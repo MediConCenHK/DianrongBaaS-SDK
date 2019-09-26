@@ -3,9 +3,13 @@ set -e
 linkPeer() {
     sudo ln -s /home/setup/config/peer/peer /usr/bin/peer
 }
-attachLog() {
+peerLog() {
     tail -f /data/hyperledger/log/peer.log
 }
+ordererLog(){
+    tail -f /data/hyperledger/log/orderer.log 
+}
+
 disableDockerAutoUpgrade() {
     local NotToUpgradeList=/etc/apt/apt.conf.d/50unattended-upgrades
     echo "To disable docker auto upgrade"
