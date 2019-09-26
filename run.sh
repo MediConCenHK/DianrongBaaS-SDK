@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -e
-stop(){
-    user=$(whoami)
-    pid=$(ps -fu $user| grep peer | egrep -v "grep|setup" | awk '{print $2}')
-    if [ -n "$pid" ]; then
-        sudo kill -TERM $pid
+user=$(whoami)
+if [[ ! -d "/data/hyperledger/log" ]]; then
+    mkdir -p /data/hyperledger/log
+fi
+stopPeer() {
+
+    pid=$(ps -fu $user | grep peer | egrep -v "grep|setup" | awk '{print $2}')
+    if [[ -n "$pid" ]]; then
+        sudo kill -TERM ${pid}
     fi
 }
-start(){
-
-    if [ ! -d "/data/hyperledger/log" ]; then
-      mkdir -p /data/hyperledger/log
-    fi
+startPeer() {
 
     export FABRIC_CFG_PATH=/etc/hyperledger/fabric
     export CORE_VM_ENDPOINT=unix:///var/run/docker.sock
@@ -34,11 +34,49 @@ start(){
     export CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
     export CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     export PATH=/home/setup/config/peer:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
-    peer node start > /data/hyperledger/log/peer.log 2>&1
+    peer node start >/data/hyperledger/log/peer.log 2>&1
 }
-restart(){
-    stop
-    start &
+restartPeer() {
+    stopPeer
+    startPeer &
 }
-$1
+stopOrderer() {
+    pid=$(ps -fu $user | grep orderer | egrep -v "grep|setup" | awk '{print $2}')
+    if [[ -n "$pid" ]]; then
+        sudo kill -TERM ${pid}
+    fi
 
+}
+startOrderer() {
+    export FABRIC_CFG_PATH=/etc/hyperledger/fabric
+    export ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+    export GODEBUG=netdns=go
+
+    export ORDERER_GENERAL_LOCALMSPID=mccMSP
+    export ORDERER_FILELEDGER_LOCATION=/data/hyperledger/production/orderer
+    export ORDERER_KAFKA_TLS_ENABLED=true
+    export ORDERER_KAFKA_TLS_PRIVATEKEY_FILE=/home/setup/config/orderer/ordererKafkaTLS0/client-key-orderer.pem
+    export ORDERER_KAFKA_TLS_CERTIFICATE_FILE=/home/setup/config/orderer/ordererKafkaTLS0/client-cert-signed-orderer.pem
+    export ORDERER_KAFKA_TLS_ROOTCAS_FILE=/home/setup/config/orderer/ordererKafkaTLS0/ca-cert.pem
+    export ORDERER_GENERAL_LOGLEVEL=INFO
+    export ORDERER_GENERAL_GENESISMETHOD=file
+    export ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/genesis.block
+    export ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+    export ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+    export ORDERER_KAFKA_RETRY_SHORTTOTAL=10m
+    export ORDERER_GENERAL_TLS_ENABLED=true
+    export ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+    export ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+    export ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    export CONFIGTX_ORDERER_ORDERERTYPE=kafka
+    export CONFIGTX_ORDERER_KAFKA_BROKERS=[kafka0.prod.mediconcen.com:9093,kafka1.prod.mediconcen.com:9093,kafka2.prod.mediconcen.com:9093,kafka3.prod.mediconcen.com:9093]
+    export PATH=/home/setup/config/orderer:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+    orderer >/data/hyperledger/log/orderer.log 2>&1
+
+}
+restartOrderer() {
+    stopOrderer
+    startOrderer &
+}
+
+$1
