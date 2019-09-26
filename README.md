@@ -3,6 +3,9 @@
 
 点融区块链云服务平台 开发软件包
 
+## TODO
+- [run.sh][peer.sh]add warning and exit if critical parameter is missing.
+
 ## Notes
 - channels.json
     - 如果peer/orderer没有url，则必须提供clientKey和clientPem的相对$HOME路径; if no `url` property specified in peer/orderer config, 
