@@ -1,7 +1,7 @@
 const logger = require('khala-fabric-sdk-node/logger').new('transactionDiscovery');
 const {transientMapTransform, transactionProposalResponseErrorHandler} = require('khala-fabric-sdk-node/chaincode');
-const ClientUtil = require('khala-fabric-sdk-node/client');
-const ChannelUtil = require('khala-fabric-sdk-node/channel');
+const Client = require('khala-fabric-sdk-node/client');
+const Channel = require('khala-fabric-sdk-node/channel');
 const {initialize, endorsementHintsBuilder} = require('khala-fabric-sdk-node/serviceDiscovery');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
 const Config = require('./configHelper');
@@ -9,9 +9,9 @@ const prepareChannel = async (channelName, userID) => {
 	const activePeers = await Config.getActiveDiscoveryPeers();
 	const peer = activePeers[0];
 	const user = await Config.getUser(userID);
-	const client = ClientUtil.new();
-	ClientUtil.setUser(client, user);
-	const channel = ChannelUtil.new(client, channelName);
+	const client = Client.new();
+	Client.setUser(client, user);
+	const channel = Channel.new(client, channelName);
 
 	await initialize(channel, peer, {asLocalhost: false, TLS: true});
 	return channel;

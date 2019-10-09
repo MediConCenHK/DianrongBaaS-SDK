@@ -5,11 +5,7 @@ const globalConfig = require(process.env.channelsJSONPath);
 
 const path = require('path');
 const fs = require('fs');
-const UserUtil = require('khala-fabric-sdk-node/user');
-const OrdererUtil = require('khala-fabric-sdk-node/orderer');
-const PeerUtil = require('khala-fabric-sdk-node/peer');
-const {nodeUtil} = require('khala-fabric-sdk-node/helper');
-const {homeResolve} = nodeUtil.helper();
+const {homeResolve, Peer, Orderer, User, Client} = require('khala-fabric-sdk-node');
 const {findKeyFiles, findCertFiles} = require('khala-fabric-sdk-node/path');
 
 exports.globalConfig = globalConfig;
@@ -17,14 +13,14 @@ exports.globalConfig = globalConfig;
 const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 	if (url) {
-		return new PeerUtil.Peer(url, {
+		return new Peer.Peer(url, {
 			pem,
 			'ssl-target-name-override': hostname
 		});
 	}
 	clientKey = fs.readFileSync(homeResolve(clientKey)).toString();
 	clientCert = fs.readFileSync(homeResolve(clientCert)).toString();
-	return PeerUtil.new({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
+	return Peer.new({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
 };
 /**
  *
@@ -34,7 +30,7 @@ exports.getActiveDiscoveryPeers = async () => {
 	const allPeers = globalConfig.discoveryPeers.map(parsePeerConfig);
 	const result = [];
 	for (const peer of allPeers) {
-		if (await PeerUtil.ping(peer)) {
+		if (await Peer.ping(peer)) {
 			result.push(peer);
 		}
 	}
@@ -49,7 +45,7 @@ exports.getActivePeers = async (peerFilter = () => true) => {
 	const allPeers = globalConfig.peers.map(parsePeerConfig);
 	const result = [];
 	for (const peer of allPeers.filter(peerFilter)) {
-		if (await PeerUtil.ping(peer)) {
+		if (await Peer.ping(peer)) {
 			result.push(peer);
 		}
 	}
@@ -62,7 +58,13 @@ exports.getUser = async (userID = 'appUser') => {
 
 	const key = fs.readFileSync(keyPath).toString();
 	const certificate = fs.readFileSync(certPath).toString();
-	return await UserUtil.build(username, {key, certificate}, mspId);
+	return await User.build(username, {key, certificate}, mspId);
+};
+exports.getClientOfUser = async (userID) => {
+	const client = Client.new();
+	const user = await exports.getUser(userID);
+	Client.setUser(client, user);
+	return client;
 };
 /**
  *
@@ -73,14 +75,14 @@ exports.getActiveOrderers = async (ordererFilter = () => true) => {
 	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 		if (url) {
-			return new OrdererUtil.Orderer(url, {
+			return new Orderer.Orderer(url, {
 				pem,
 				'ssl-target-name-override': hostname
 			});
 		} else {
 			clientKey = fs.readFileSync(homeResolve(clientKey)).toString();
 			clientCert = fs.readFileSync(homeResolve(clientCert)).toString();
-			return OrdererUtil.new({
+			return Orderer.new({
 				ordererPort: 7050, host: hostname,
 				pem,
 				clientKey, clientCert
@@ -89,7 +91,7 @@ exports.getActiveOrderers = async (ordererFilter = () => true) => {
 	});
 	const result = [];
 	for (const orderer of orderers.filter(ordererFilter)) {
-		if (await OrdererUtil.ping(orderer)) {
+		if (await Orderer.ping(orderer)) {
 			result.push(orderer);
 		}
 	}
