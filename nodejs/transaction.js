@@ -11,8 +11,6 @@ const _prepare = async (channelName, userID, endorserFilter = () => true) => {
 };
 exports.query = async (channelName, chaincodeId, fcn, args = [], transientMap, endorserFilter, userID) => {
 	const {activePeers, client} = await _prepare(channelName, userID, endorserFilter);
-
-
 	const resp = await transactionProposal(client, activePeers, channelName, {
 		chaincodeId, fcn, args, transientMap
 	});
@@ -20,7 +18,6 @@ exports.query = async (channelName, chaincodeId, fcn, args = [], transientMap, e
 };
 exports.transaction = async (channelName, chaincodeId, fcn, args, transientMap, endorserFilter, userID) => {
 	const {channel, activePeers, client} = await _prepare(channelName, userID, endorserFilter);
-
 	const eventHubs = activePeers.map(peer => newEventHub(channel, peer, true));
 	const orderers = await Config.getActiveOrderers();
 	const orderer = orderers[0];
