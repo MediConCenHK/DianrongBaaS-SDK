@@ -68,6 +68,7 @@ startOrderer() {
 		export ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
 		export ORDERER_KAFKA_RETRY_SHORTTOTAL=10m
 	elif [[ "$ORDERERTYPE" == "etcdraft" ]]; then
+		export CONFIGTX_ORDERER_ORDERERTYPE=etcdraft
 		export ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
 		export ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
 		export ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
