@@ -1,24 +1,10 @@
 const logger = require('khala-fabric-sdk-node/logger').new('transactionDiscovery');
 const {transientMapTransform, transactionProposalResponseErrorHandler} = require('khala-fabric-sdk-node/chaincode');
-const Client = require('khala-fabric-sdk-node/client');
 const Channel = require('khala-fabric-sdk-node/channel');
-const {initialize, endorsementHintsBuilder} = require('khala-fabric-sdk-node/serviceDiscovery');
+const {endorsementHintsBuilder} = require('khala-fabric-sdk-node/serviceDiscovery');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
 const Config = require('./configHelper');
-const prepareChannel = async (channelName, userID, isSystemChannel) => {
-	const user = await Config.getUser(userID);
-	const client = Client.new();
-	Client.setUser(client, user);
-	const channel = Channel.new(client, channelName);
-
-	if (!isSystemChannel) {
-		const activePeers = await Config.getActiveDiscoveryPeers();
-		const peer = activePeers[0];
-		await initialize(channel, peer, {asLocalhost: false, TLS: true});
-	}
-	return channel;
-};
-exports.prepareChannel = prepareChannel;
+const {prepareChannel} = require('./prepare');
 /**
  * This method is enhanced to use the discovered peers to send the endorsement proposal
  *
@@ -39,7 +25,7 @@ const transactionProposalDefault = async (
 	{chaincodeId, fcn, args = [], transientMap},
 	proposalTimeout = 30000
 ) => {
-	const channel = await prepareChannel(channelName, userID);
+	const channel = await prepareChannel(channelName, userID,true);
 	const txId = channel._clientContext.newTransactionID();
 	const request = {
 		txId,

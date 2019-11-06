@@ -1,24 +1,31 @@
-const Config = require('./configHelper');
 const {invoke} = require('khala-fabric-sdk-node/chaincodeHelper');
 const {transactionProposal} = require('khala-fabric-sdk-node/chaincode');
-const {prepareChannel} = require('./transactionDiscovery');
-const {newEventHub} = require('khala-fabric-sdk-node/eventHub');
-const _prepare = async (channelName, userID, endorserFilter = () => true) => {
-	const activePeers = await Config.getActivePeers(endorserFilter);
-	const channel = await prepareChannel(channelName, userID);
-	const client = channel._clientContext;
-	return {channel, activePeers, client};
-};
-exports.query = async (channelName, chaincodeId, fcn, args = [], transientMap, endorserFilter, userID) => {
-	const {activePeers, client} = await _prepare(channelName, userID, endorserFilter);
-	const resp = await transactionProposal(client, activePeers, channelName, {
+const {prepareChannel} = require('./prepare');
+const EventHub = require('khala-fabric-sdk-node/eventHub');
+const Config = require('./configHelper');
+exports.queryOnPeers = async (channelName, chaincodeId, fcn, args = [], transientMap, userID, targetPeers) => {
+	const client = await Config.getClientOfUser(userID);
+	const resp = await transactionProposal(client, targetPeers, channelName, {
 		chaincodeId, fcn, args, transientMap
 	});
 	return resp;
 };
-exports.transaction = async (channelName, chaincodeId, fcn, args, transientMap, endorserFilter, userID) => {
-	const {channel, activePeers, client} = await _prepare(channelName, userID, endorserFilter);
-	const eventHubs = activePeers.map(peer => newEventHub(channel, peer, true));
+
+exports.query = async (channelName, chaincodeId, fcn, args, transientMap, endorserFilter, userID) => {
+	const targetPeers = await Config.getActivePeers(endorserFilter);
+	const resp = await exports.queryOnPeers(channelName, chaincodeId, fcn, args, transientMap, userID, targetPeers);
+	return resp;
+};
+exports.transaction = async (channelName, chaincodeId, fcn, args = [], transientMap, endorserFilter, userID) => {
+
+	const activePeers = await Config.getActivePeers(endorserFilter);
+	const channel = await prepareChannel(channelName, userID, false);
+	const client = channel._clientContext;
+
+	const eventHubs = activePeers.map(async peer => {
+		const eventHub = new EventHub(channel, peer);
+		await eventHub.connect({startBlock:undefined});
+	});
 	const orderers = await Config.getActiveOrderers();
 	const orderer = orderers[0];
 	const resp = await invoke(client, channelName, activePeers, eventHubs,

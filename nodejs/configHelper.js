@@ -24,7 +24,7 @@ const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 };
 /**
  *
- * @returns {Promise<Peer[]>}
+ * @returns {Promise<Client.Peer[]>}
  */
 exports.getActiveDiscoveryPeers = async () => {
 	const allPeers = globalConfig.discoveryPeers.map(parsePeerConfig);
@@ -38,8 +38,8 @@ exports.getActiveDiscoveryPeers = async () => {
 };
 /**
  *
- * @param {function} peerFilter
- * @returns {Promise<Peer[]>}
+ * @param {function} [peerFilter]
+ * @returns {Promise<Client.Peer[]>}
  */
 exports.getActivePeers = async (peerFilter = () => true) => {
 	const allPeers = globalConfig.peers.map(parsePeerConfig);
