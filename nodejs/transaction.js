@@ -22,10 +22,11 @@ exports.transaction = async (channelName, chaincodeId, fcn, args = [], transient
 	const channel = await prepareChannel(channelName, userID, false);
 	const client = channel._clientContext;
 
-	const eventHubs = activePeers.map(async peer => {
-		const eventHub = new EventHub(channel, peer);
+	const eventHubs = activePeers.map(peer => new EventHub(channel, peer));
+
+	for (const eventHub of eventHubs) {
 		await eventHub.connect();
-	});
+	}
 	const orderers = await Config.getActiveOrderers();
 	const orderer = orderers[0];
 	const resp = await invoke(client, channelName, activePeers, eventHubs,
