@@ -5,7 +5,7 @@ const prepareChannel = async (channelName, userID, useDiscover) => {
 	const client = await Config.getClientOfUser(userID);
 	const channel = Channel.new(client, channelName);
 
-	if (!useDiscover) {
+	if (useDiscover) {
 		const activePeers = await Config.getActiveDiscoveryPeers();
 		const peer = activePeers[0];
 		await initialize(channel, peer, {asLocalhost: false, TLS: true});
