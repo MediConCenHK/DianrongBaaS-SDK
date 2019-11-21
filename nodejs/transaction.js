@@ -24,7 +24,7 @@ exports.transaction = async (channelName, chaincodeId, fcn, args = [], transient
 
 	const eventHubs = activePeers.map(async peer => {
 		const eventHub = new EventHub(channel, peer);
-		await eventHub.connect({startBlock:undefined});
+		await eventHub.connect();
 	});
 	const orderers = await Config.getActiveOrderers();
 	const orderer = orderers[0];
