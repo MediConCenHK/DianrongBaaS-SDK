@@ -5,7 +5,8 @@ const globalConfig = require(process.env.channelsJSONPath);
 
 const path = require('path');
 const fs = require('fs');
-const {homeResolve, Peer, Orderer, User, Client} = require('khala-fabric-sdk-node');
+const {Peer, Orderer, User, Client} = require('khala-fabric-sdk-node');
+const {homeResolve} = require('khala-nodeutils/helper');
 const {findKeyFiles, findCertFiles} = require('khala-fabric-sdk-node/path');
 
 exports.globalConfig = globalConfig;
