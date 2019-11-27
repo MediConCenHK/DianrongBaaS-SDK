@@ -53,17 +53,17 @@ exports.getActivePeers = async (peerFilter = () => true) => {
 	return result;
 };
 
-exports.getUser = async (userID = 'appUser') => {
+exports.getUser = (userID = 'appUser') => {
 	const {username, mspId, credentialPath} = globalConfig.users[userID];
 	const {keyPath, certPath} = getUserKeyPathFromDRClientOutput(credentialPath);
 
 	const key = fs.readFileSync(keyPath).toString();
 	const certificate = fs.readFileSync(certPath).toString();
-	return await User.build(username, {key, certificate}, mspId);
+	return User.build(username, {key, certificate}, mspId);
 };
-exports.getClientOfUser = async (userID) => {
+exports.getClientOfUser = (userID) => {
 	const client = Client.new();
-	const user = await exports.getUser(userID);
+	const user = exports.getUser(userID);
 	Client.setUser(client, user);
 	return client;
 };

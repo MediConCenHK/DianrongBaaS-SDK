@@ -1,8 +1,15 @@
 const Channel = require('khala-fabric-sdk-node/channel');
 const {initialize} = require('khala-fabric-sdk-node/serviceDiscovery');
 const Config = require('./configHelper');
+/**
+ *
+ * @param {string} channelName
+ * @param {string} userID
+ * @param {boolean} [useDiscover]
+ * @return {Promise<Client.Channel>}
+ */
 const prepareChannel = async (channelName, userID, useDiscover) => {
-	const client = await Config.getClientOfUser(userID);
+	const client = Config.getClientOfUser(userID);
 	const channel = Channel.new(client, channelName);
 
 	if (useDiscover) {
