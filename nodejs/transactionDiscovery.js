@@ -3,6 +3,7 @@ const {transientMapTransform, transactionProposalResponseErrorHandler} = require
 const Channel = require('khala-fabric-sdk-node/channel');
 const {endorsementHintsBuilder} = require('khala-fabric-sdk-node/serviceDiscovery');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
+const EventHub = require('khala-fabric-sdk-node/eventHub');
 const Config = require('./configHelper');
 const {prepareChannel} = require('./prepare');
 /**
@@ -25,7 +26,7 @@ const transactionProposalDefault = async (
 	{chaincodeId, fcn, args = [], transientMap},
 	proposalTimeout = 30000
 ) => {
-	const channel = await prepareChannel(channelName, userID,true);
+	const channel = await prepareChannel(channelName, userID, true);
 	const txId = channel._clientContext.newTransactionID();
 	const request = {
 		txId,
@@ -99,8 +100,9 @@ const invokeDefault = async (
 		eventHubs = mspids.map(mspid => channel.getChannelEventHubsForOrg(mspid)).reduce((c1, c2) => c1.concat(c2));
 	}
 
-	for (const eventHub of eventHubs) {
-		eventHub.connect(true);
+	for (const rawEventHub of eventHubs) {
+		const eventHub = new EventHub(undefined, undefined, rawEventHub);
+		await eventHub.connect();
 		promises.push(txTimerPromise(eventHub, {txId}, eventTimeout));
 	}
 	const orderers = await Config.getActiveOrderers();
