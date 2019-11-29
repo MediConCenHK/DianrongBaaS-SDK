@@ -1,16 +1,34 @@
 #!/usr/bin/env bash
 set -e
 linkPeer() {
-	sudo ln -s /home/setup/config/peer/peer /usr/bin/peer
+	sudo ln -s /opt/dianrong/hyperledger/peer /usr/bin/peer
 }
 linkOrderer() {
-	sudo ln -s /home/setup/config/orderer/orderer /usr/bin/orderer
+	sudo ln -s /opt/dianrong/hyperledger/orderer /usr/bin/orderer
 }
 peerLog() {
-	tail -f /data/hyperledger/log/peer.log
+	tail -f /data/hyperledger/log/peer/peer.log
 }
 ordererLog() {
-	tail -f /data/hyperledger/log/orderer.log
+	tail -f /data/hyperledger/log/orderer/orderer.log
+}
+ordererService() {
+	modes=('start' 'stop' 'restart')
+	if [[ " ${modes[*]} " == *"$1"* ]]; then
+		sudo service orderer $1
+	fi
+}
+peerService() {
+	modes=('start' 'stop' 'restart')
+	if [[ " ${modes[*]} " == *"$1"* ]]; then
+		sudo service peer $1
+	fi
+}
+couchdbService() {
+	modes=('start' 'stop' 'restart')
+	if [[ " ${modes[*]} " == *"$1"* ]]; then
+		sudo service couchdb $1
+	fi
 }
 
 disableDockerAutoUpgrade() {
