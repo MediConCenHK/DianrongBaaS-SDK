@@ -9,7 +9,5 @@
     "khala-fabric-sdk-node": "^1.4.4-0.0.3",
     "khala-nodeutils": "^0.7.8"
   },
-  "devDependencies": {
-    "log4js": "^5.1.0"
-  }
+  "devDependencies": {}
 }
