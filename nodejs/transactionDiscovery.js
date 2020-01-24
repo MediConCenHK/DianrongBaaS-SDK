@@ -1,6 +1,5 @@
 const logger = require('khala-fabric-sdk-node/logger').new('transactionDiscovery');
 const {transientMapTransform, transactionProposalResponseErrorHandler} = require('khala-fabric-sdk-node/chaincode');
-const Channel = require('khala-fabric-sdk-node/channel');
 const {endorsementHintsBuilder} = require('khala-fabric-sdk-node/serviceDiscovery');
 const {txTimerPromise} = require('khala-fabric-sdk-node/chaincodeHelper');
 const EventHub = require('khala-fabric-sdk-node/eventHub');
@@ -18,7 +17,7 @@ const {prepareChannel} = require('./prepare');
  * @param args
  * @param transientMap
  * @param proposalTimeout
- * @returns {Promise<[TransactionRequest,Channel]>}
+ * @returns {Promise<[TransactionRequest,Client.Channel]>}
  */
 const transactionProposalDefault = async (
 	channelName, userID,
