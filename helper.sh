@@ -9,7 +9,7 @@ linkPeer() {
 	sudo ln -s /opt/dianrong/hyperledger/peer/bin/peer /usr/bin/peer
 }
 linkOrderer() {
-	sudo ln -s /opt/dianrong/hyperledger/orderer /usr/bin/orderer
+	sudo ln -s /opt/dianrong/hyperledger/orderer/bin/orderer /usr/bin/orderer
 }
 peerLog() {
 	local lines=$1
