@@ -1,6 +1,6 @@
 {
   "name": "dianrong-baas-sdk",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "点融区块链云服务平台-nodejs开发软件包",
   "repository": {
     "url": "github.com/MediConCenHK/DianrongBaaS-SDK"

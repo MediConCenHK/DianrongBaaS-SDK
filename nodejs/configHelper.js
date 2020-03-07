@@ -26,6 +26,7 @@ const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	clientCert = fs.readFileSync(homeResolve(clientCert)).toString();
 	return Peer.new({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
 };
+exports.PeerFromConfig = parsePeerConfig;
 /**
  *
  * @returns {Promise<Client.Peer[]>}
