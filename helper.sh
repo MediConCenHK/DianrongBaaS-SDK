@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 set -e
+remain_params=""
+for ((i = 2; i <= ${#}; i++)); do
+	j=${!i}
+	remain_params="$remain_params $j"
+done
 linkPeer() {
 	sudo ln -s /opt/dianrong/hyperledger/peer /usr/bin/peer
 }
@@ -7,11 +12,22 @@ linkOrderer() {
 	sudo ln -s /opt/dianrong/hyperledger/orderer /usr/bin/orderer
 }
 peerLog() {
-	tail -f /data/hyperledger/log/peer/peer.log
+	local lines=$1
+	locao options="-f"
+	if [[ -z "$lines" ]]; then
+		options="$options -n $lines"
+	fi
+	tail $options /data/hyperledger/log/peer/peer.log
 }
 ordererLog() {
-	tail -f /data/hyperledger/log/orderer/orderer.log
+	local lines=$1
+	locao options="-f"
+	if [[ -z "$lines" ]]; then
+		options="$options -n $lines"
+	fi
+	tail $options /data/hyperledger/log/orderer/orderer.log
 }
+
 ordererService() {
 	modes=('start' 'stop' 'restart')
 	if [[ " ${modes[*]} " == *"$1"* ]]; then
@@ -54,4 +70,4 @@ disableDockerAutoUpgrade() {
 	echo "Added docker into upgrade package-blacklist in ${NotToUpgradeList}"
 }
 
-$1
+$1 $remain_params
