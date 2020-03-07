@@ -6,7 +6,7 @@ for ((i = 2; i <= ${#}; i++)); do
 	remain_params="$remain_params $j"
 done
 linkPeer() {
-	sudo ln -s /opt/dianrong/hyperledger/peer /usr/bin/peer
+	sudo ln -s /opt/dianrong/hyperledger/peer/bin/peer /usr/bin/peer
 }
 linkOrderer() {
 	sudo ln -s /opt/dianrong/hyperledger/orderer /usr/bin/orderer
