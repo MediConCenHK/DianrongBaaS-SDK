@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
-export CORE_PEER_ADDRESS=peer1.test.mediconcen.com:7051
-export CORE_PEER_LOCALMSPID=mccMSP
+export CORE_PEER_ADDRESS=$CORE_PEER_ADDRESS
+export CORE_PEER_LOCALMSPID=$CORE_PEER_LOCALMSPID
 
 export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt

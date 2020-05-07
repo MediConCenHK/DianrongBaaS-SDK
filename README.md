@@ -4,7 +4,7 @@
 点融区块链云服务平台 开发软件包
 
 ## TODO
-- [run.sh][peer.sh]add warning and exit if critical parameter is missing.
+- use fabric-network for the normal query and transaction
 
 ## Notes
 - channels.json
