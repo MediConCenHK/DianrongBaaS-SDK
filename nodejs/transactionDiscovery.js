@@ -5,7 +5,7 @@ const UserUtil = require('khala-fabric-sdk-node-builder/user');
 
 const networkConfig = Config.globalConfig;
 const getPeersCallback = (orgName) => {
-	const orgConfig = networkConfig[orgName];
+	const orgConfig = networkConfig.organizations[orgName];
 	return orgConfig.peers.map(peerConfig => Config.PeerFromConfig(peerConfig));
 };
 exports.queryDefault = async (channelName, userID, {chaincodeId, fcn, args, transientMap}) => {

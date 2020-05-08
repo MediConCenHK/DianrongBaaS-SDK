@@ -30,31 +30,23 @@ const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	return peerUtil.peer;
 };
 exports.PeerFromConfig = parsePeerConfig;
+
 /**
  *
- * @returns {Promise<Client.Peer[]>}
- */
-exports.getActiveDiscoveryPeers = async () => {
-	const allPeers = globalConfig.discoveryPeers.map(parsePeerConfig);
-	const result = [];
-	for (const peer of allPeers) {
-		if (await PeerUtil.ping(peer)) {
-			result.push(peer);
-		}
-	}
-	return result;
-};
-/**
- *
+ * @param [orgName]
  * @param {function} [peerFilter]
  * @returns {Promise<Client.Peer[]>}
  */
-exports.getActivePeers = async (peerFilter = () => true) => {
-	const allPeers = globalConfig.peers.map(parsePeerConfig);
+exports.getActivePeers = async (orgName, peerFilter = () => true) => {
+	const orgFilter = orgName ? _orgName => _orgName === _orgName : () => true;
+	const orgs = Object.keys(globalConfig.organizations).filter(orgFilter);
 	const result = [];
-	for (const peer of allPeers.filter(peerFilter)) {
-		if (await Peer.ping(peer)) {
-			result.push(peer);
+	for (const orgName of orgs) {
+		const orgPeers = globalConfig.organizations[orgName].peers.map(parsePeerConfig);
+		for(const peer of orgPeers){
+			if (await Peer.ping(peer)) {
+				result.push(peer);
+			}
 		}
 	}
 	return result;
@@ -72,7 +64,7 @@ exports.getUser = (userID = 'appUser') => {
 exports.getClientOfUser = (userID) => {
 	const clientUtil = new ClientUtil();
 	const user = exports.getUser(userID);
-	clientUtil.setUser(user)
+	clientUtil.setUser(user);
 	return clientUtil.client;
 };
 /**

@@ -1,12 +1,16 @@
 {
-  "discoveryPeers": [
-    {
-      "url": "grpcs://peer0.mcc:7051",
-      "hostname": "peer0.mcc",
-      "tlsCaCert": "crypto-config/peerOrganizations/mcc/tlsca/tlsca.mcc-cert.pem"
+  "organizations": {
+    "mcc": {
+      "peers": [
+        {
+          "url": "grpcs://peer0.mcc:7051",
+          "hostname": "peer0.mcc",
+          "tlsCaCert": "crypto-config/peerOrganizations/mcc/tlsca/tlsca.mcc-cert.pem"
+        }
+      ],
+      "mspid": "MCCMSP"
     }
-  ],
-  "peers": [],
+  },
   "users": {
     "appUser": {
       "username": "Admin@mcc",
