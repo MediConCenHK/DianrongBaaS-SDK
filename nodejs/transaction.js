@@ -1,13 +1,14 @@
-const {invoke} = require('khala-fabric-sdk-node/chaincodeHelper');
-const {transactionProposal} = require('khala-fabric-sdk-node/chaincode');
-const {prepareChannel} = require('./prepare');
-const EventHub = require('khala-fabric-sdk-node/eventHub');
+const Gateway = require('khala-fabric-network/gateway');
+const ContractManager = require('khala-fabric-network/contract');
 const Config = require('./configHelper');
 exports.queryOnPeers = async (channelName, chaincodeId, fcn, args = [], transientMap, userID, targetPeers) => {
-	const client = await Config.getClientOfUser(userID);
-	return await transactionProposal(client, targetPeers, channelName, {
-		chaincodeId, fcn, args, transientMap
-	});
+	const gateway = new Gateway();
+	const client = Config.getClientOfUser(userID);
+	const network = await gateway.connect(client, channelName, targetPeers, undefined, undefined);
+	const contract = new ContractManager(network.getContract(chaincodeId));
+	const result = contract.evaluateTransaction(fcn, transientMap, ...args);
+
+	return result;
 };
 
 exports.query = async (channelName, chaincodeId, fcn, args, transientMap, userID, endorserFilter) => {
@@ -15,19 +16,16 @@ exports.query = async (channelName, chaincodeId, fcn, args, transientMap, userID
 	return await exports.queryOnPeers(channelName, chaincodeId, fcn, args, transientMap, userID, targetPeers);
 };
 exports.transactionOnPeers = async (channelName, chaincodeId, fcn, args = [], transientMap, userID, targetPeers) => {
-	const channel = await prepareChannel(channelName, userID, false);
-	const client = channel._clientContext;
-
-	const eventHubs = targetPeers.map(peer => new EventHub(channel, peer));
-
-	for (const eventHub of eventHubs) {
-		await eventHub.connect();
-	}
+	const gateway = new Gateway();
+	const client = Config.getClientOfUser(userID);
 	const orderers = await Config.getActiveOrderers();
 	const orderer = orderers[0];
-	return await invoke(client, channelName, targetPeers, eventHubs,
-		{chaincodeId, fcn, args, transientMap},
-		orderer);
+	const network = await gateway.connect(client, channelName, targetPeers, orderer);
+
+	const contract = new ContractManager(network.getContract(chaincodeId));
+	const result = contract.submitTransaction(fcn, transientMap, ...args);
+	return result;
+
 };
 exports.transaction = async (channelName, chaincodeId, fcn, args, transientMap, userID, endorserFilter) => {
 	const activePeers = await Config.getActivePeers(endorserFilter);
