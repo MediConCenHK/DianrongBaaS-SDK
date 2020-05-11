@@ -8,7 +8,7 @@ const getPeersCallback = (orgName) => {
 	const orgConfig = networkConfig.organizations[orgName];
 	return orgConfig.peers.map(peerConfig => Config.PeerFromConfig(peerConfig));
 };
-exports.queryDefault = async (channelName, userID, {chaincodeId, fcn, args = [], transientMap}) => {
+const queryDefault = async (channelName, userID, {chaincodeId, fcn, args = [], transientMap}) => {
 
 	const gateway = new Gateway();
 	const client = Config.getClientOfUser(userID);
@@ -22,7 +22,7 @@ exports.queryDefault = async (channelName, userID, {chaincodeId, fcn, args = [],
 	return contract.evaluateTransaction(fcn, transientMap, ...args);
 };
 
-exports.invokeDefault = async (channelName, userID, {chaincodeId, fcn, args = [], transientMap}) => {
+const invokeDefault = async (channelName, userID, {chaincodeId, fcn, args = [], transientMap}) => {
 	const gateway = new Gateway();
 	const client = Config.getClientOfUser(userID);
 
