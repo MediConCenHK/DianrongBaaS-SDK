@@ -14,7 +14,6 @@ const ClientUtil = require('khala-fabric-sdk-node-builder/client');
 const {homeResolve} = require('khala-light-util');
 const {findKeyFiles, findCertFiles} = require('khala-fabric-formatter/path');
 
-exports.globalConfig = globalConfig;
 
 const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
@@ -29,30 +28,34 @@ const parsePeerConfig = ({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 	const peerUtil = new PeerUtil({peerPort: 7051, host: hostname, pem, clientKey, clientCert});
 	return peerUtil.peer;
 };
-exports.PeerFromConfig = parsePeerConfig;
 
+const getPeersCallback = (orgName) => {
+	const orgConfig = globalConfig.organizations[orgName];
+	return orgConfig.peers.map(parsePeerConfig);
+};
+
+const getAllPeers = () => {
+	return Object.keys(globalConfig.organizations).map(getPeersCallback).reduce((result, peers) => {
+		return result.concat(peers);
+	}, []);
+};
 /**
  *
- * @param [orgName]
- * @param {function} [peerFilter]
+ * @param {string} [orgName]
  * @returns {Promise<Client.Peer[]>}
  */
-exports.getActivePeers = async (orgName, peerFilter = () => true) => {
-	const orgFilter = orgName ? _orgName => _orgName === _orgName : () => true;
-	const orgs = Object.keys(globalConfig.organizations).filter(orgFilter);
+const getActivePeers = async (orgName) => {
+	const peers = orgName ? getPeersCallback(orgName) : getAllPeers();
 	const result = [];
-	for (const orgName of orgs) {
-		const orgPeers = globalConfig.organizations[orgName].peers.map(parsePeerConfig);
-		for(const peer of orgPeers){
-			if (await Peer.ping(peer)) {
-				result.push(peer);
-			}
+	for (const peer of peers) {
+		if (await PeerUtil.ping(peer)) {
+			result.push(peer);
 		}
 	}
 	return result;
 };
 
-exports.getUser = (userID = 'appUser') => {
+const getUser = (userID = 'appUser') => {
 	const {username, mspId, credentialPath} = globalConfig.users[userID];
 	const {keyPath, certPath} = getUserKeyPathFromDRClientOutput(credentialPath);
 
@@ -61,9 +64,9 @@ exports.getUser = (userID = 'appUser') => {
 	const userBuilder = new UserBuilder({name: username});
 	return userBuilder.build({key, certificate, mspId});
 };
-exports.getClientOfUser = (userID) => {
+const getClientOfUser = (userID) => {
 	const clientUtil = new ClientUtil();
-	const user = exports.getUser(userID);
+	const user = getUser(userID);
 	clientUtil.setUser(user);
 	return clientUtil.client;
 };
@@ -72,7 +75,7 @@ exports.getClientOfUser = (userID) => {
  * @param {function} ordererFilter
  * @return {Promise<OrdererUtil[]>}
  */
-exports.getActiveOrderers = async (ordererFilter = () => true) => {
+const getActiveOrderers = async (ordererFilter = () => true) => {
 	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url, clientKey, clientCert}) => {
 		const pem = fs.readFileSync(homeResolve(tlsCaCert)).toString();
 		if (url) {
@@ -110,21 +113,13 @@ const getUserKeyPathFromDRClientOutput = credentialPath => {
 		certPath: findCertFiles(certDirPath)[0]
 	};
 };
-/**
- * Fabric (v1.4) has a bug:
- * when orderers belongs to different organizations, the service discovery mismatches the orderer to other org's MSP,
- * which leads to the fabric-client uses the wrong tls CA cert to verify the orderer's tls server cert during SSL
- * handshake.
- * At client side, it prints log:
- *    "E0201 21:23:54.835298000 4531140032 ssl_transport_security.cc:1227]
- *     Handshake failed with fatal error SSL_ERROR_SSL:
- *     error:14090086:SSL routines:ssl3_get_server_certificate:certificate verify failed."
- * The solution is: after channel initialization based on the service discovery, correct the channel's orderers with
- * the static configuration. However, the client also can retry other one, if one orderer is fault.
- *
- * @param {Channel} channel
- * @param {Orderer[]} orderers
- */
-exports.fixChannelOrderers = (channel, orderers) => {
-	channel._orderers = orderers;
+
+module.exports = {
+	globalConfig,
+	getPeersCallback,
+	PeerFromConfig: parsePeerConfig,
+	getActivePeers,
+	getActiveOrderers,
+	getClientOfUser,
+	getUser,
 };

@@ -1,6 +1,6 @@
 {
   "name": "dianrong-baas-sdk",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "点融区块链云服务平台-nodejs开发软件包",
   "repository": {
     "url": "github.com/MediConCenHK/DianrongBaaS-SDK"
@@ -10,5 +10,8 @@
     "khala-fabric-sdk-node-builder": "^0.2.4",
     "khala-light-util": "^0.0.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "mocha": "^8.0.1",
+    "khala-logger": "^0.2.0"
+  }
 }

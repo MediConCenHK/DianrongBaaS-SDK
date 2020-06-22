@@ -1,17 +1,14 @@
 const Config = require('./configHelper');
+const {getClientOfUser, getPeersCallback, getActiveOrderers, globalConfig} = Config;
 const Gateway = require('khala-fabric-network/gateway');
 const ContractManager = require('khala-fabric-network/contract');
 const UserUtil = require('khala-fabric-sdk-node-builder/user');
 
-const networkConfig = Config.globalConfig;
-const getPeersCallback = (orgName) => {
-	const orgConfig = networkConfig.organizations[orgName];
-	return orgConfig.peers.map(peerConfig => Config.PeerFromConfig(peerConfig));
-};
+const networkConfig = globalConfig;
 const queryDefault = async (channelName, userID, {chaincodeId, fcn, args = [], transientMap}) => {
 
 	const gateway = new Gateway();
-	const client = Config.getClientOfUser(userID);
+	const client = getClientOfUser(userID);
 
 
 	const mspId = new UserUtil(undefined, client._userContext).getMSPID();
@@ -24,11 +21,11 @@ const queryDefault = async (channelName, userID, {chaincodeId, fcn, args = [], t
 
 const invokeDefault = async (channelName, userID, {chaincodeId, fcn, args = [], transientMap}) => {
 	const gateway = new Gateway();
-	const client = Config.getClientOfUser(userID);
+	const client = getClientOfUser(userID);
 
 	const mspId = new UserUtil(undefined, client._userContext).getMSPID();
 	const discoveryOptions = {mspId, networkConfig, getPeersCallback};
-	const orderers = await Config.getActiveOrderers();
+	const orderers = await getActiveOrderers();
 	const orderer = orderers[0];
 	const network = await gateway.connect(client, channelName, undefined, orderer, discoveryOptions, true);
 	const contract = new ContractManager(network.getContract(chaincodeId));

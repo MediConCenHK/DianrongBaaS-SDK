@@ -1,29 +1,29 @@
 {
   "organizations": {
-    "mcc": {
+    "astri.org": {
       "peers": [
         {
-          "url": "grpcs://peer0.mcc:7051",
-          "hostname": "peer0.mcc",
-          "tlsCaCert": "crypto-config/peerOrganizations/mcc/tlsca/tlsca.mcc-cert.pem"
+          "url": "grpcs://peer0.astri.org:7051",
+          "hostname": "peer0.astri.org",
+          "tlsCaCert": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/peerOrganizations/astri.org/tlsca/tlsca.astri.org-cert.pem"
         }
       ],
-      "mspid": "MCCMSP"
+      "mspid": "astriMSP"
     }
   },
   "users": {
     "appUser": {
-      "username": "Admin@mcc",
-      "mspId": "MCCMSP",
-      "credentialPath": "crypto-config/peerOrganizations/mcc/users/Admin@mcc/msp"
+      "username": "Admin@astri.org",
+      "mspId": "astriMSP",
+      "credentialPath": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/peerOrganizations/astri.org/users/Admin@astri.org/msp"
     }
   },
   "orderers": [
     {
-      "clientKey": "crypto-config/ordererOrganizations/mediconcen/client/clientKey",
-      "clientCert": "crypto-config/ordererOrganizations/mediconcen/client/clientCert",
-      "hostname": "orderer.mediconcen",
-      "tlsCaCert": "crypto-config/ordererOrganizations/mediconcen/tlsca/tlsca.mediconcen-cert.pem"
+      "clientKey": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/client/clientKey",
+      "clientCert": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/client/clientCert",
+      "hostname": "orderer0.hyperledger",
+      "tlsCaCert": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/tlsca/tlsca.hyperledger-cert.pem"
     }
   ],
   "chaincodeConfig": {
