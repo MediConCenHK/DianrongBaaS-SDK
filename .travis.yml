@@ -10,6 +10,8 @@ matrix:
       install:
         - cd nodejs; npm install; cd -;
         - npm install --global mocha@7
+        - mkdir -p ${HOME}/Documents/DianrongBaaS-SDK/nodejs/test/artifacts
+        - cp ${TRAVIS_BUILD_DIR}/nodejs/test/artifacts/crypto-config ${HOME}/Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config
       script:
         - mocha nodejs/test
 

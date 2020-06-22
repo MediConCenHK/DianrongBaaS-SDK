@@ -5,7 +5,7 @@
         {
           "url": "grpcs://peer0.astri.org:7051",
           "hostname": "peer0.astri.org",
-          "tlsCaCert": "DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/peerOrganizations/astri.org/tlsca/tlsca.astri.org-cert.pem"
+          "tlsCaCert": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/peerOrganizations/astri.org/tlsca/tlsca.astri.org-cert.pem"
         }
       ],
       "mspid": "astriMSP"
@@ -15,15 +15,15 @@
     "appUser": {
       "username": "Admin@astri.org",
       "mspId": "astriMSP",
-      "credentialPath": "DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/peerOrganizations/astri.org/users/Admin@astri.org/msp"
+      "credentialPath": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/peerOrganizations/astri.org/users/Admin@astri.org/msp"
     }
   },
   "orderers": [
     {
-      "clientKey": "DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/client/clientKey",
-      "clientCert": "DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/client/clientCert",
+      "clientKey": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/client/clientKey",
+      "clientCert": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/client/clientCert",
       "hostname": "orderer0.hyperledger",
-      "tlsCaCert": "DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/tlsca/tlsca.hyperledger-cert.pem"
+      "tlsCaCert": "Documents/DianrongBaaS-SDK/nodejs/test/artifacts/crypto-config/ordererOrganizations/hyperledger/tlsca/tlsca.hyperledger-cert.pem"
     }
   ],
   "chaincodeConfig": {
