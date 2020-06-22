@@ -9,6 +9,7 @@ matrix:
           - nodejs/node_modules
       install:
         - cd nodejs; npm install; cd -;
+        - npm install --global mocha
       script:
         - mocha nodejs/test
 
