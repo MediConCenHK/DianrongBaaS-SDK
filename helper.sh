@@ -8,6 +8,9 @@ done
 linkPeer() {
 	sudo ln -s /opt/dianrong/hyperledger/peer/bin/peer /usr/bin/peer
 }
+auditPeer() {
+	sudo auditctl -w /opt/dianrong/hyperledger/peer/bin/peer
+}
 linkOrderer() {
 	sudo ln -s /opt/dianrong/hyperledger/orderer/bin/orderer /usr/bin/orderer
 }
