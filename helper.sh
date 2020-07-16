@@ -14,6 +14,9 @@ auditPeer() {
 linkOrderer() {
 	sudo ln -s /opt/dianrong/hyperledger/orderer/bin/orderer /usr/bin/orderer
 }
+peerEnv(){
+	export FABRIC_CFG_PATH=/opt/dianrong/hyperledger/peer/conf
+}
 peerLog() {
 	local lines=$1
 	locao options="-f"
