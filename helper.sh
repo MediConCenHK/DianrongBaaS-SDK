@@ -19,7 +19,7 @@ peerEnv(){
 }
 peerLog() {
 	local lines=$1
-	locao options="-f"
+	local options="-f"
 	if [[ -z "$lines" ]]; then
 		options="$options -n $lines"
 	fi
@@ -27,7 +27,7 @@ peerLog() {
 }
 ordererLog() {
 	local lines=$1
-	locao options="-f"
+	local options="-f"
 	if [[ -z "$lines" ]]; then
 		options="$options -n $lines"
 	fi
