@@ -73,7 +73,7 @@ const getClientOfUser = (userID) => {
 /**
  *
  * @param {function} ordererFilter
- * @return {Promise<OrdererUtil[]>}
+ * @return {Promise<Orderer[]>}
  */
 const getActiveOrderers = async (ordererFilter = () => true) => {
 	const orderers = globalConfig.orderers.map(({tlsCaCert, hostname, url, clientKey, clientCert}) => {
